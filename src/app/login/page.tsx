@@ -104,13 +104,13 @@ export default function LoginPage() {
           <div className="grid grid-cols-2 gap-4 text-[12px] text-gray-500">
             <div>
               <p className="font-medium text-gray-700">Admin</p>
-              <p className="mt-0.5">admin@example.com</p>
-              <p>password123</p>
+              <p className="mt-0.5">admin@test.com</p>
+              <p>Admin@123</p>
             </div>
             <div>
               <p className="font-medium text-gray-700">Seller</p>
-              <p className="mt-0.5">seller@example.com</p>
-              <p>password123</p>
+              <p className="mt-0.5">seller@test.com</p>
+              <p>Seller@123</p>
             </div>
           </div>
         </div>
