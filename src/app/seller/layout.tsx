@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
@@ -19,10 +19,26 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
   const pathname = usePathname();
   const { data: session } = useSession();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
+
+  useEffect(() => {
+    const updateCount = () => {
+      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+      setCartCount(cart.length);
+    };
+    updateCount();
+    window.addEventListener("cart-updated", updateCount);
+    window.addEventListener("storage", updateCount);
+    return () => {
+      window.removeEventListener("cart-updated", updateCount);
+      window.removeEventListener("storage", updateCount);
+    };
+  }, []);
 
   const navigation = [
-    { name: "Browse Products", href: "/seller/browse", icon: Search },
-    { name: "My Quotations", href: "/seller/orders", icon: FileText },
+    { name: "Browse Products", href: "/seller/products", icon: Search },
+    { name: "Build Quotation", href: "/seller/quotation", icon: FileText, hasBadge: true },
+    { name: "My Quotations", href: "/seller/orders", icon: ShoppingBag },
   ];
 
   return (
@@ -54,6 +70,11 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
                   >
                     <item.icon className="mr-2 h-4 w-4" />
                     {item.name}
+                    {item.hasBadge && cartCount > 0 && (
+                      <span className="ml-2 px-1.5 py-0.5 text-xs font-bold rounded-full bg-violet-600 text-white animate-pulse">
+                        {cartCount}
+                      </span>
+                    )}
                   </Link>
                 );
               })}
@@ -139,7 +160,12 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
                     }`}
                   >
                     <item.icon className="mr-3 h-5 w-5" />
-                    {item.name}
+                    <span className="flex-1 text-left">{item.name}</span>
+                    {item.hasBadge && cartCount > 0 && (
+                      <span className="ml-2 px-1.5 py-0.5 text-xs font-bold rounded-full bg-violet-600 text-white animate-pulse">
+                        {cartCount}
+                      </span>
+                    )}
                   </Link>
                 );
               })}
