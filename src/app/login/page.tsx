@@ -99,6 +99,21 @@ export default function LoginPage() {
             </Button>
           </CardFooter>
         </form>
+        <div className="mt-8 pt-6 border-t border-gray-100">
+          <p className="text-[12px] font-medium text-gray-900 mb-3">Demo Credentials</p>
+          <div className="grid grid-cols-2 gap-4 text-[12px] text-gray-500">
+            <div>
+              <p className="font-medium text-gray-700">Admin</p>
+              <p className="mt-0.5">admin@example.com</p>
+              <p>password123</p>
+            </div>
+            <div>
+              <p className="font-medium text-gray-700">Seller</p>
+              <p className="mt-0.5">seller@example.com</p>
+              <p>password123</p>
+            </div>
+          </div>
+        </div>
       </Card>
     </main>
   );
