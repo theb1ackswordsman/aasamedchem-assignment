@@ -1,23 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { 
-  Search, 
-  Filter, 
-  Loader2, 
-  ShoppingCart,
-  Check
-} from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { getUnitsForDimension, convertToBase, formatINR, Dimension, Unit } from "@/lib/units";
 
 interface Product {
@@ -117,136 +103,132 @@ export default function SellerBrowsePage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 bg-white">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-white">Browse Products</h1>
-        <p className="text-slate-400">Search products, inspect price conversions, and build your quotation request.</p>
+        <h1 className="text-[22px] font-medium text-gray-900">Chemical Catalog</h1>
       </div>
 
-      {/* Filter Options */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 rounded-xl border border-slate-800 bg-slate-900/40 backdrop-blur-md">
-        <div className="relative">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
+      {/* Filter Row & Search */}
+      <div className="space-y-4">
+        <div>
           <Input
-            placeholder="Search by name or SKU..."
+            placeholder="Search products..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 bg-slate-950 border-slate-800 text-white placeholder-slate-500 focus:border-violet-500"
+            className="w-full h-9 border border-gray-200 text-[13px] bg-white placeholder-gray-400 focus:ring-blue-500 focus:border-blue-500 rounded-md shadow-none"
           />
         </div>
 
-        <div className="flex items-center gap-2">
-          <Filter className="h-4 w-4 text-slate-500" />
-          <Select value={dimensionFilter} onValueChange={(val) => setDimensionFilter(val || "all")}>
-            <SelectTrigger className="bg-slate-950 border-slate-800 text-white">
-              <SelectValue placeholder="All Dimensions" />
-            </SelectTrigger>
-            <SelectContent className="bg-slate-900 border-slate-800 text-white">
-              <SelectItem value="all">All Dimensions</SelectItem>
-              <SelectItem value="weight">Weight</SelectItem>
-              <SelectItem value="volume">Volume</SelectItem>
-              <SelectItem value="count">Count</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <div className="flex items-center justify-between border-b border-gray-200 pb-px">
+          {/* Dimension filter pills */}
+          <div className="flex gap-6">
+            {["all", "weight", "volume", "count"].map((dim) => {
+              const isActive = dimensionFilter === dim;
+              return (
+                <button
+                  key={dim}
+                  onClick={() => setDimensionFilter(dim)}
+                  className={`pb-2 text-[13px] font-medium capitalize border-b-2 transition-colors -mb-px ${
+                    isActive
+                      ? "text-blue-600 border-blue-600"
+                      : "text-gray-500 border-transparent hover:text-gray-950"
+                  }`}
+                >
+                  {dim === "all" ? "All" : dim}
+                </button>
+              );
+            })}
+          </div>
 
-        <div className="flex items-center gap-2">
-          <Filter className="h-4 w-4 text-slate-500" />
-          <Select value={categoryFilter} onValueChange={(val) => setCategoryFilter(val || "all")}>
-            <SelectTrigger className="bg-slate-950 border-slate-800 text-white">
-              <SelectValue placeholder="All Categories" />
-            </SelectTrigger>
-            <SelectContent className="bg-slate-900 border-slate-800 text-white">
-              <SelectItem value="all">All Categories</SelectItem>
+          {/* Category Filter dropdown */}
+          <div className="flex items-center gap-2">
+            <span className="text-[12px] text-gray-500 font-medium">Category:</span>
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="h-8 border border-gray-200 text-[12px] text-gray-700 bg-white rounded-md focus:ring-blue-500 px-2 outline-none"
+            >
+              <option value="all">All Categories</option>
               {categoriesList.map((cat) => (
-                <SelectItem key={cat.id} value={cat.id}>
+                <option key={cat.id} value={cat.id}>
                   {cat.name}
-                </SelectItem>
+                </option>
               ))}
-            </SelectContent>
-          </Select>
+            </select>
+          </div>
         </div>
       </div>
 
       {/* Grid List */}
       {isLoading ? (
-        <div className="flex flex-col items-center justify-center py-20 gap-3">
-          <Loader2 className="h-8 w-8 text-violet-500 animate-spin" />
-          <p className="text-slate-400 text-sm">Loading product catalog...</p>
+        <div className="flex flex-col items-center justify-center py-20 gap-3 bg-white">
+          <Loader2 className="h-8 w-8 text-blue-600 animate-spin" />
+          <p className="text-gray-500 text-sm">Loading product catalog...</p>
         </div>
       ) : productsList.length === 0 ? (
-        <div className="py-20 text-center text-slate-500">
+        <div className="py-20 text-center text-gray-500 text-[13px] bg-white">
           No products found matching the criteria.
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-3 gap-4">
           {productsList.map((product) => {
             const isAdded = cartItemIds.includes(product.id);
             const validUnits = getUnitsForDimension(product.dimension as Dimension);
+            
+            const stockVal = Number(product.stockQuantity);
+            const minOrderVal = Number(product.minOrderQuantity);
+            const isLow = stockVal < minOrderVal * 5;
+
+            // Formatted price line: e.g. "₹0.46 / g  ·  ₹460.00 / kg"
+            const priceParts = validUnits.map((unit: Unit) => {
+              const price = convertToBase(1, unit) * Number(product.basePrice);
+              return `₹${price.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} / ${unit}`;
+            });
+            const priceLine = priceParts.join("  ·  ");
+
+            // Formatted stock line
+            const stockLine = isLow
+              ? `LOW STOCK: ${stockVal.toLocaleString("en-IN")} ${product.baseUnit}`
+              : `${stockVal.toLocaleString("en-IN")} ${product.baseUnit} available`;
 
             return (
-              <Card key={product.id} className="border-slate-800 bg-slate-900/30 backdrop-blur-sm text-white flex flex-col justify-between hover:border-slate-700 transition-all duration-300">
-                <CardHeader className="pb-2">
+              <div 
+                key={product.id} 
+                className="bg-white border border-gray-200 rounded-lg p-5 flex flex-col justify-between shadow-none text-left"
+              >
+                <div>
                   <div className="flex justify-between items-start gap-2">
-                    <span className="text-[10px] bg-slate-800 text-slate-400 border border-slate-700 px-2 py-0.5 rounded font-mono font-bold uppercase tracking-wider">
-                      {product.sku}
-                    </span>
+                    <h3 className="text-[15px] font-medium text-gray-900 leading-snug">{product.name}</h3>
                     {product.categoryName && (
-                      <span className="text-xs text-violet-400 font-semibold">
+                      <span className="bg-gray-100 text-gray-600 text-[11px] px-2 py-0.5 rounded-full font-medium shrink-0">
                         {product.categoryName}
                       </span>
                     )}
                   </div>
-                  <CardTitle className="text-lg font-bold text-white mt-2 leading-snug">{product.name}</CardTitle>
-                  <CardDescription className="text-slate-400 text-xs mt-1 line-clamp-2">
-                    {product.description || "No description available."}
-                  </CardDescription>
-                </CardHeader>
+                  
+                  <p className="text-[13px] font-mono text-gray-500 mt-2">{priceLine}</p>
+                </div>
 
-                <CardContent className="space-y-4 pt-0 flex-1 flex flex-col justify-between">
-                  <div className="border-t border-slate-800/80 pt-4 mt-2">
-                    <p className="text-[11px] text-slate-500 uppercase tracking-wider font-bold">Standard Pricing</p>
-                    <div className="mt-1.5 space-y-1">
-                      {validUnits.map((unit: Unit) => {
-                        const price = convertToBase(1, unit) * Number(product.basePrice);
-                        return (
-                          <div key={unit} className="flex justify-between items-center text-sm">
-                            <span className="text-slate-400">Price per {unit === "unit" ? "item" : unit}</span>
-                            <span className="font-semibold text-white">{formatINR(price)}/{unit}</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  <div className="flex justify-between text-xs text-slate-500 pt-2 border-t border-slate-800/45">
-                    <span>Available Stock: {Number(product.stockQuantity).toLocaleString("en-IN")} {product.baseUnit}</span>
-                    <span>Min Order: {Number(product.minOrderQuantity).toLocaleString("en-IN")} {product.baseUnit}</span>
-                  </div>
-                </CardContent>
-
-                <CardFooter className="pt-2 border-t border-slate-800/80">
+                <div className="mt-4">
+                  <p className={`text-[12px] ${isLow ? "text-red-600 font-medium" : "text-gray-400"}`}>
+                    {stockLine}
+                  </p>
+                  
+                  <div className="border-t border-gray-100 mt-4" />
+                  
                   <Button
                     onClick={() => handleAddToQuote(product)}
                     disabled={isAdded}
-                    className={`w-full font-semibold transition-all duration-200 ${
-                      isAdded 
-                        ? "bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-600/20" 
-                        : "bg-slate-800 text-white hover:bg-slate-700 border border-slate-700"
+                    className={`w-full h-8 text-[13px] mt-3 rounded-md shadow-none transition-colors border border-gray-200 ${
+                      isAdded
+                        ? "bg-gray-50 border-gray-200 text-gray-400 hover:bg-gray-50"
+                        : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-gray-900"
                     }`}
                   >
-                    {isAdded ? (
-                      <>
-                        <Check className="mr-2 h-4 w-4" /> Added to Quote
-                      </>
-                    ) : (
-                      <>
-                        <ShoppingCart className="mr-2 h-4 w-4" /> Add to Quote
-                      </>
-                    )}
+                    {isAdded ? "Added to Quote" : "Add to Quote"}
                   </Button>
-                </CardFooter>
-              </Card>
+                </div>
+              </div>
             );
           })}
         </div>

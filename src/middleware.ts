@@ -10,7 +10,7 @@ export default withAuth(
     // Check if the user is trying to access an admin path
     if (path.startsWith("/admin") && role !== "admin") {
       if (role === "seller") {
-        return NextResponse.redirect(new URL("/seller/browse", req.url));
+        return NextResponse.redirect(new URL("/seller/products", req.url));
       }
       return NextResponse.redirect(new URL("/login", req.url));
     }

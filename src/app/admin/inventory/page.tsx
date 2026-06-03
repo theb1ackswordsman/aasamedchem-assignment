@@ -1,12 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import {
-  Loader2,
-  Boxes,
-  AlertTriangle,
-  RefreshCw,
-} from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -60,54 +55,52 @@ export default function AdminInventoryPage() {
   const lowStockCount = productsList.filter(isLowStock).length;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="space-y-8 bg-white">
+      <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white">Inventory Management</h1>
-          <p className="text-slate-400">Track stock levels across all products.</p>
+          <h1 className="text-[22px] font-medium text-gray-900">Inventory</h1>
         </div>
         <div className="flex items-center gap-3">
           {lowStockCount > 0 && (
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold">
-              <AlertTriangle className="h-3.5 w-3.5" />
+            <div className="px-3 py-1.5 bg-amber-100 text-amber-800 text-[11px] font-medium uppercase tracking-wider rounded-md border border-amber-200 select-none">
               {lowStockCount} low stock item{lowStockCount > 1 ? "s" : ""}
             </div>
           )}
           <Button
             onClick={fetchProducts}
-            variant="ghost"
-            className="text-slate-400 hover:text-white border border-slate-800 hover:border-slate-700"
+            variant="outline"
+            className="h-9 px-4 text-[13px] font-medium border border-gray-200 text-gray-700 hover:bg-gray-50 rounded-md shadow-none"
           >
-            <RefreshCw className="mr-2 h-4 w-4" /> Refresh
+            Refresh
           </Button>
         </div>
       </div>
 
-      <div className="rounded-xl border border-slate-800 bg-slate-900/20 overflow-hidden shadow-xl">
+      <div className="rounded-lg border border-gray-200 overflow-hidden bg-white text-left">
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-20 gap-3">
-            <Loader2 className="h-8 w-8 text-violet-500 animate-spin" />
-            <p className="text-slate-400 text-sm">Loading inventory...</p>
+          <div className="flex flex-col items-center justify-center py-20 gap-3 bg-white">
+            <Loader2 className="h-8 w-8 text-blue-600 animate-spin" />
+            <p className="text-gray-500 text-sm">Loading inventory...</p>
           </div>
         ) : productsList.length === 0 ? (
-          <div className="py-20 text-center text-slate-500">
-            <Boxes className="h-12 w-12 mx-auto mb-4 text-slate-700" />
+          <div className="py-20 text-center text-gray-500 text-[13px] bg-white">
             <p>No products in inventory.</p>
           </div>
         ) : (
           <Table>
-            <TableHeader className="bg-slate-900/50 border-b border-slate-800 text-slate-300">
-              <TableRow className="border-b border-slate-800 hover:bg-slate-900/30">
-                <TableHead className="font-semibold">Name</TableHead>
-                <TableHead className="font-semibold">SKU</TableHead>
-                <TableHead className="font-semibold">Dimension</TableHead>
-                <TableHead className="font-semibold text-right">Stock (Base Unit)</TableHead>
-                <TableHead className="font-semibold text-right">Min Order</TableHead>
-                <TableHead className="font-semibold text-center">Status</TableHead>
+            <TableHeader className="bg-white border-b border-gray-200 text-gray-500 text-[11px] font-medium uppercase tracking-widest">
+              <TableRow className="border-b border-gray-200 hover:bg-white">
+                <TableHead className="font-medium">NAME</TableHead>
+                <TableHead className="font-medium">SKU</TableHead>
+                <TableHead className="font-medium">DIMENSION</TableHead>
+                <TableHead className="font-medium">BASE UNIT</TableHead>
+                <TableHead className="font-medium text-right">STOCK</TableHead>
+                <TableHead className="font-medium text-right">MIN ORDER</TableHead>
+                <TableHead className="font-medium text-center">STATUS</TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody className="text-slate-300">
-              {productsList.map((product) => {
+            <TableBody className="text-[13px] text-gray-700">
+              {productsList.map((product, idx) => {
                 const low = isLowStock(product);
                 const stock = Number(product.stockQuantity);
                 const minOrder = Number(product.minOrderQuantity);
@@ -115,45 +108,42 @@ export default function AdminInventoryPage() {
                 return (
                   <TableRow
                     key={product.id}
-                    className={`border-b border-slate-800 transition-colors ${
+                    className={`h-11 border-b border-gray-100 last:border-0 hover:bg-gray-50/50 ${
                       low
-                        ? "bg-amber-500/5 hover:bg-amber-500/10"
-                        : "hover:bg-slate-900/30"
+                        ? "border-l-2 border-l-amber-400 bg-amber-50/30 hover:bg-amber-50/40"
+                        : idx % 2 === 0
+                        ? "bg-white"
+                        : "bg-[#F8FAFC]"
                     }`}
                   >
-                    <TableCell className="font-medium text-white">
-                      <div className="flex items-center gap-2">
-                        {low && <AlertTriangle className="h-4 w-4 text-amber-400 shrink-0" />}
-                        {product.name}
-                      </div>
+                    <TableCell className="px-6 py-2 text-gray-950 font-medium">
+                      {product.name}
                     </TableCell>
-                    <TableCell className="font-mono text-xs font-bold text-violet-400">
+                    <TableCell className="px-6 py-2 font-mono text-[13px] text-gray-900">
                       {product.sku}
                     </TableCell>
-                    <TableCell className="capitalize text-xs text-slate-400">
+                    <TableCell className="px-6 py-2 capitalize text-gray-500">
                       {product.dimension}
                     </TableCell>
-                    <TableCell className="text-right">
-                      <span className={`font-semibold ${low ? "text-amber-400" : stock === 0 ? "text-red-400" : "text-white"}`}>
+                    <TableCell className="px-6 py-2 font-mono text-xs text-gray-500">
+                      {product.baseUnit}
+                    </TableCell>
+                    <TableCell className="px-6 py-2 text-right font-medium tabular-nums">
+                      <span className={low ? "text-red-600" : "text-gray-700"}>
                         {stock.toLocaleString("en-IN")}
                       </span>
-                      <span className="text-xs text-slate-500 ml-1">{product.baseUnit}</span>
                     </TableCell>
-                    <TableCell className="text-right text-xs text-slate-400">
-                      {minOrder.toLocaleString("en-IN")} {product.baseUnit}
+                    <TableCell className="px-6 py-2 text-right tabular-nums text-gray-500">
+                      {minOrder.toLocaleString("en-IN")}
                     </TableCell>
-                    <TableCell className="text-center">
-                      {stock === 0 ? (
-                        <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-red-500/10 text-red-400 border border-red-500/20">
-                          Out of Stock
-                        </span>
-                      ) : low ? (
-                        <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                          Low Stock
+                    <TableCell className="px-6 py-2 text-center">
+                      {product.isActive ? (
+                        <span className="bg-green-100 text-green-800 text-[11px] px-2 py-0.5 rounded-full font-medium">
+                          active
                         </span>
                       ) : (
-                        <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                          In Stock
+                        <span className="bg-gray-100 text-gray-600 text-[11px] px-2 py-0.5 rounded-full font-medium">
+                          inactive
                         </span>
                       )}
                     </TableCell>

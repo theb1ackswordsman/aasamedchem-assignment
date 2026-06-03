@@ -2,13 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { 
-  Plus, 
-  Search, 
-  Edit, 
-  Trash2, 
-  Loader2, 
-  X,
-  Filter
+  Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -237,39 +231,28 @@ export default function AdminProductsPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="space-y-8 bg-white">
+      <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white">Products Catalog</h1>
-          <p className="text-slate-400">View, add, edit, or remove B2B products.</p>
+          <h1 className="text-[22px] font-medium text-gray-900">Products</h1>
         </div>
-        <Button 
-          onClick={handleAddClick}
-          className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 text-white font-medium shadow-md shadow-violet-500/10"
-        >
-          <Plus className="mr-2 h-4 w-4" /> Add Product
-        </Button>
       </div>
 
       {/* Filter and Search Section */}
-      <div className="flex flex-col sm:flex-row gap-4 p-4 rounded-xl border border-slate-800 bg-slate-900/40 backdrop-blur-md">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
+      <div className="flex justify-between items-center gap-4">
+        <div className="flex items-center gap-3">
           <Input
             placeholder="Search by name or SKU..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 bg-slate-950 border-slate-800 text-white placeholder-slate-500 focus:border-violet-500"
+            className="w-64 h-9 border border-gray-200 text-[13px] bg-white placeholder-gray-400 focus:ring-blue-500 focus:border-blue-500 rounded-md shadow-none"
           />
-        </div>
-        
-        <div className="flex items-center gap-2 min-w-[200px]">
-          <Filter className="h-4 w-4 text-slate-500" />
+          
           <Select value={dimensionFilter} onValueChange={(val) => setDimensionFilter(val || "all")}>
-            <SelectTrigger className="bg-slate-950 border-slate-800 text-white">
+            <SelectTrigger className="w-40 h-9 border border-gray-200 text-[13px] text-gray-900 bg-white rounded-md shadow-none">
               <SelectValue placeholder="All Dimensions" />
             </SelectTrigger>
-            <SelectContent className="bg-slate-900 border-slate-800 text-white">
+            <SelectContent className="bg-white border border-gray-200">
               <SelectItem value="all">All Dimensions</SelectItem>
               <SelectItem value="weight">Weight</SelectItem>
               <SelectItem value="volume">Volume</SelectItem>
@@ -277,77 +260,93 @@ export default function AdminProductsPage() {
             </SelectContent>
           </Select>
         </div>
+        
+        <Button 
+          onClick={handleAddClick}
+          className="bg-blue-600 hover:bg-blue-700 text-white h-9 px-4 text-[13px] font-medium rounded-md shadow-none"
+        >
+          Add Product
+        </Button>
       </div>
 
       {/* Products Table */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900/20 overflow-hidden shadow-xl">
+      <div className="rounded-lg border border-gray-200 overflow-hidden bg-white">
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-20 gap-3">
-            <Loader2 className="h-8 w-8 text-violet-500 animate-spin" />
-            <p className="text-slate-400 text-sm">Fetching catalog products...</p>
+          <div className="flex flex-col items-center justify-center py-20 gap-3 bg-white">
+            <Loader2 className="h-8 w-8 text-blue-600 animate-spin" />
+            <p className="text-gray-500 text-sm">Fetching catalog products...</p>
           </div>
         ) : productsList.length === 0 ? (
-          <div className="py-20 text-center text-slate-500">
+          <div className="py-20 text-center text-gray-500 text-[13px] bg-white">
             No products found matching the criteria.
           </div>
         ) : (
           <Table>
-            <TableHeader className="bg-slate-900/50 border-b border-slate-800 text-slate-300">
-              <TableRow className="border-b border-slate-800 hover:bg-slate-900/30">
-                <TableHead className="font-semibold">SKU</TableHead>
-                <TableHead className="font-semibold">Name</TableHead>
-                <TableHead className="font-semibold">Category</TableHead>
-                <TableHead className="font-semibold">Dimension</TableHead>
-                <TableHead className="font-semibold">Base Unit</TableHead>
-                <TableHead className="font-semibold">Price per Base Unit</TableHead>
-                <TableHead className="font-semibold">Stock Qty</TableHead>
-                <TableHead className="font-semibold text-right">Actions</TableHead>
+            <TableHeader className="bg-white border-b border-gray-200 text-gray-500 text-[11px] font-medium uppercase tracking-widest">
+              <TableRow className="border-b border-gray-200 hover:bg-white">
+                <TableHead className="font-medium">ORDER ID</TableHead>
+                <TableHead className="font-medium">SKU</TableHead>
+                <TableHead className="font-medium">NAME</TableHead>
+                <TableHead className="font-medium">CATEGORY</TableHead>
+                <TableHead className="font-medium">DIMENSION</TableHead>
+                <TableHead className="font-medium">BASE UNIT</TableHead>
+                <TableHead className="font-medium text-right">₹/UNIT</TableHead>
+                <TableHead className="font-medium text-right">STOCK</TableHead>
+                <TableHead className="font-medium text-center">STATUS</TableHead>
+                <TableHead className="font-medium text-right">ACTIONS</TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody className="text-slate-300">
-              {productsList.map((product) => (
-                <TableRow key={product.id} className="border-b border-slate-800 hover:bg-slate-900/30 transition-colors">
-                  <TableCell className="font-mono text-xs font-bold text-violet-400">{product.sku}</TableCell>
-                  <TableCell className="font-medium text-white">{product.name}</TableCell>
-                  <TableCell>
-                    {product.categoryName ? (
-                      <span className="px-2 py-0.5 rounded text-xs bg-slate-800 text-slate-300 border border-slate-700">
-                        {product.categoryName}
-                      </span>
-                    ) : (
-                      <span className="text-xs text-slate-600">None</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="capitalize text-xs text-slate-400">{product.dimension}</TableCell>
-                  <TableCell className="font-mono text-xs">{product.baseUnit}</TableCell>
-                  <TableCell className="font-semibold text-white">
-                    {formatINR(Number(product.basePrice))}/{product.baseUnit}
-                  </TableCell>
-                  <TableCell>
-                    <span className={Number(product.stockQuantity) === 0 ? "text-red-400 font-bold" : ""}>
+            <TableBody className="text-[13px] text-gray-700">
+              {productsList.map((product, idx) => (
+                <TableRow 
+                  key={product.id} 
+                  className={`h-11 border-b border-gray-100 last:border-0 hover:bg-gray-50/50 ${
+                    idx % 2 === 0 ? "bg-white" : "bg-[#F8FAFC]"
+                  }`}
+                >
+                  <td className="px-4 py-2 font-mono text-[13px] text-gray-400">—</td>
+                  <td className="px-4 py-2 font-mono text-[13px] text-gray-900">{product.sku}</td>
+                  <td className="px-4 py-2 font-medium text-gray-950">{product.name}</td>
+                  <td className="px-4 py-2 text-gray-500">
+                    {product.categoryName || "None"}
+                  </td>
+                  <td className="px-4 py-2 capitalize text-gray-500">{product.dimension}</td>
+                  <td className="px-4 py-2 font-mono text-xs text-gray-500">{product.baseUnit}</td>
+                  <td className="px-4 py-2 text-right font-medium tabular-nums text-gray-900">
+                    {formatINR(Number(product.basePrice))}
+                  </td>
+                  <td className="px-4 py-2 text-right tabular-nums">
+                    <span className={Number(product.stockQuantity) === 0 ? "text-red-600 font-medium" : "text-gray-500"}>
                       {Number(product.stockQuantity).toLocaleString("en-IN")}
                     </span>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
+                  </td>
+                  <td className="px-4 py-2 text-center">
+                    {product.isActive ? (
+                      <span className="bg-green-100 text-green-800 text-[11px] px-2 py-0.5 rounded-full font-medium">
+                        active
+                      </span>
+                    ) : (
+                      <span className="bg-gray-100 text-gray-600 text-[11px] px-2 py-0.5 rounded-full font-medium">
+                        inactive
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-4 py-2 text-right">
+                    <div className="flex justify-end gap-3 text-[13px]">
+                      <button
                         onClick={() => handleEditClick(product)}
-                        className="h-8 w-8 text-slate-400 hover:text-white hover:bg-slate-800"
+                        className="text-blue-600 hover:underline font-medium"
                       >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
+                        Edit
+                      </button>
+                      <button
                         onClick={() => handleDeleteClick(product.id)}
-                        className="h-8 w-8 text-slate-400 hover:text-red-400 hover:bg-red-950/20"
+                        className="text-red-600 hover:underline font-medium"
                       >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                        Delete
+                      </button>
                     </div>
-                  </TableCell>
+                  </td>
                 </TableRow>
               ))}
             </TableBody>
@@ -357,67 +356,65 @@ export default function AdminProductsPage() {
 
       {/* Slide-over Form Sheet */}
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-        <SheetContent className="bg-slate-900 border-l border-slate-800 text-white w-full sm:max-w-md overflow-y-auto">
-          <SheetHeader className="space-y-1 mb-6">
-            <SheetTitle className="text-xl font-bold text-white">
-              {editingProduct ? "Edit Product" : "Add New Product"}
+        <SheetContent className="bg-white border-l border-gray-200 text-gray-900 w-[400px] sm:max-w-[400px] p-8 overflow-y-auto shadow-none">
+          <SheetHeader className="p-0 mb-6 space-y-1">
+            <SheetTitle className="text-[18px] font-medium text-gray-900">
+              {editingProduct ? "Edit Product" : "Add Product"}
             </SheetTitle>
-            <SheetDescription className="text-slate-400 text-sm">
-              {editingProduct 
-                ? "Update product specifications and values." 
-                : "Create a new product listing for the catalog."}
+            <SheetDescription className="text-gray-500 text-xs">
+              Fill in the details to specify chemical catalog properties.
             </SheetDescription>
           </SheetHeader>
 
           <form onSubmit={handleFormSubmit} className="space-y-4">
             {formError && (
-              <div className="rounded-lg bg-red-950/50 p-3 text-sm text-red-400 border border-red-800/50 font-medium">
+              <div className="rounded-lg bg-red-50 p-3 text-[13px] text-red-600 border border-red-200 font-medium">
                 {formError}
               </div>
             )}
 
-            <div className="space-y-2">
-              <Label htmlFor="prodName" className="text-slate-300">Product Name</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="prodName" className="text-[12px] font-medium text-gray-700">Name</Label>
               <Input
                 id="prodName"
                 value={formName}
                 onChange={(e) => setFormName(e.target.value)}
                 required
-                className="bg-slate-950 border-slate-800 text-white focus:border-violet-500"
+                className="h-9 border border-gray-200 rounded-md text-[13px] text-gray-900 bg-white placeholder-gray-400 focus:ring-blue-500 focus:border-blue-500 shadow-none"
                 placeholder="Product name"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="prodSku" className="text-slate-300">SKU (Stock Keeping Unit)</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="prodSku" className="text-[12px] font-medium text-gray-700">SKU</Label>
               <Input
                 id="prodSku"
                 value={formSku}
                 onChange={(e) => setFormSku(e.target.value)}
                 required
-                className="bg-slate-950 border-slate-800 text-white focus:border-violet-500 font-mono"
+                className="h-9 border border-gray-200 rounded-md text-[13px] text-gray-900 bg-white placeholder-gray-400 focus:ring-blue-500 focus:border-blue-500 font-mono shadow-none"
                 placeholder="CHEM-ETH-500"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="prodDesc" className="text-slate-300">Description</Label>
-              <Input
+            <div className="space-y-1.5">
+              <Label htmlFor="prodDesc" className="text-[12px] font-medium text-gray-700">Description</Label>
+              <textarea
                 id="prodDesc"
                 value={formDescription}
                 onChange={(e) => setFormDescription(e.target.value)}
-                className="bg-slate-950 border-slate-800 text-white focus:border-violet-500"
+                className="w-full min-h-[80px] p-2 border border-gray-200 rounded-md text-[13px] text-gray-900 bg-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 resize-none shadow-none"
                 placeholder="Product description"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label className="text-slate-300">Category</Label>
+            <div className="space-y-1.5">
+              <Label className="text-[12px] font-medium text-gray-700">Category</Label>
               <Select value={formCategory} onValueChange={(val) => setFormCategory(val || "none")}>
-                <SelectTrigger className="bg-slate-950 border-slate-800 text-white">
+                <SelectTrigger className="h-9 border border-gray-200 text-[13px] text-gray-900 bg-white rounded-md shadow-none">
                   <SelectValue placeholder="Select Category" />
                 </SelectTrigger>
-                <SelectContent className="bg-slate-900 border-slate-800 text-white">
+                <SelectContent className="bg-white border border-gray-200">
                   <SelectItem value="none">None</SelectItem>
                   {categoriesList.map((cat) => (
                     <SelectItem key={cat.id} value={cat.id}>
@@ -428,48 +425,52 @@ export default function AdminProductsPage() {
               </Select>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-slate-300">Dimension</Label>
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <Label className="text-[12px] font-medium text-gray-700">Dimension</Label>
                 <Select value={formDimension} onValueChange={(val) => setFormDimension(val || "weight")}>
-                  <SelectTrigger className="bg-slate-950 border-slate-800 text-white">
+                  <SelectTrigger className="h-9 border border-gray-200 text-[13px] text-gray-900 bg-white rounded-md shadow-none">
                     <SelectValue placeholder="Dimension" />
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-900 border-slate-800 text-white">
-                    <SelectItem value="weight">Weight</SelectItem>
-                    <SelectItem value="volume">Volume</SelectItem>
-                    <SelectItem value="count">Count</SelectItem>
+                  <SelectContent className="bg-white border border-gray-200">
+                    <SelectItem value="weight">weight</SelectItem>
+                    <SelectItem value="volume">volume</SelectItem>
+                    <SelectItem value="count">count</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-slate-300">Base Unit (Auto)</Label>
+              <div className="space-y-1.5">
+                <Label className="text-[12px] font-medium text-gray-700">Base Unit</Label>
                 <Input
                   value={computedBaseUnit}
                   disabled
-                  className="bg-slate-950 border-slate-800 text-slate-400 font-mono"
+                  readOnly
+                  className="h-9 border border-gray-200 rounded-md text-[13px] text-gray-500 bg-gray-50 font-mono shadow-none"
                 />
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="prodPrice" className="text-slate-300">Base Price (INR per Base Unit)</Label>
-              <Input
-                id="prodPrice"
-                type="number"
-                step="0.000001"
-                value={formBasePrice}
-                onChange={(e) => setFormBasePrice(e.target.value)}
-                required
-                className="bg-slate-950 border-slate-800 text-white focus:border-violet-500"
-                placeholder="0.00"
-              />
+            <div className="space-y-1.5">
+              <Label htmlFor="prodPrice" className="text-[12px] font-medium text-gray-700">Base Price</Label>
+              <div className="flex items-center h-9 border border-gray-200 rounded-md bg-white overflow-hidden">
+                <span className="px-3 text-gray-500 border-r border-gray-200 bg-gray-50 h-full flex items-center text-[13px] select-none">₹</span>
+                <Input
+                  id="prodPrice"
+                  type="number"
+                  step="0.000001"
+                  value={formBasePrice}
+                  onChange={(e) => setFormBasePrice(e.target.value)}
+                  required
+                  className="border-0 focus:ring-0 focus:border-0 rounded-none h-full text-[13px] text-gray-900 bg-transparent flex-1 shadow-none"
+                  placeholder="0.00"
+                />
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="prodStock" className="text-slate-300">Stock Qty</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="prodStock" className="text-[12px] font-medium text-gray-700">Stock Quantity</Label>
                 <Input
                   id="prodStock"
                   type="number"
@@ -477,12 +478,12 @@ export default function AdminProductsPage() {
                   value={formStock}
                   onChange={(e) => setFormStock(e.target.value)}
                   required
-                  className="bg-slate-950 border-slate-800 text-white focus:border-violet-500"
+                  className="h-9 border border-gray-200 rounded-md text-[13px] text-gray-900 bg-white focus:ring-blue-500 focus:border-blue-500 shadow-none"
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="prodMinOrder" className="text-slate-300">Min Order Qty</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="prodMinOrder" className="text-[12px] font-medium text-gray-700">Min Order Quantity</Label>
                 <Input
                   id="prodMinOrder"
                   type="number"
@@ -490,7 +491,7 @@ export default function AdminProductsPage() {
                   value={formMinOrder}
                   onChange={(e) => setFormMinOrder(e.target.value)}
                   required
-                  className="bg-slate-950 border-slate-800 text-white focus:border-violet-500"
+                  className="h-9 border border-gray-200 rounded-md text-[13px] text-gray-900 bg-white focus:ring-blue-500 focus:border-blue-500 shadow-none"
                 />
               </div>
             </div>
@@ -501,24 +502,18 @@ export default function AdminProductsPage() {
                 id="prodActive"
                 checked={formIsActive}
                 onChange={(e) => setFormIsActive(e.target.checked)}
-                className="h-4 w-4 rounded border-slate-800 bg-slate-950 text-violet-600 focus:ring-violet-500 focus:ring-offset-slate-900"
+                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
-              <Label htmlFor="prodActive" className="text-slate-300 font-normal">Product is active and visible</Label>
+              <Label htmlFor="prodActive" className="text-[13px] font-normal text-gray-700 select-none">Product is active and visible</Label>
             </div>
 
-            <SheetFooter className="pt-4">
+            <SheetFooter className="p-0 pt-4 mt-6">
               <Button
                 type="submit"
                 disabled={isSubmitLoading}
-                className="w-full bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 text-white font-medium transition-all"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white h-9 text-[13px] font-medium rounded-md shadow-none"
               >
-                {isSubmitLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
-                  </>
-                ) : (
-                  "Save Product"
-                )}
+                {isSubmitLoading ? "Saving..." : "Save Product"}
               </Button>
             </SheetFooter>
           </form>

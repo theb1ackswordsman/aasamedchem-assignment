@@ -2,32 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { 
-  Trash2, 
-  Loader2, 
-  ArrowLeft, 
-  FileCheck,
-  Calculator
-} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table";
 import { getUnitsForDimension, calculatePrice, formatINR, Dimension, Unit } from "@/lib/units";
 
 interface CartItem {
@@ -166,174 +143,149 @@ export default function QuotationBuilderPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
-      <div className="flex items-center space-x-2">
-        <Button 
-          variant="ghost" 
-          onClick={() => router.push("/seller/products")}
-          className="text-slate-400 hover:text-white"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" /> Back to Products
-        </Button>
-      </div>
-
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-white">Quotation Builder</h1>
-        <p className="text-slate-400">Specify quantities and target units to review instant line estimations.</p>
+    <div className="space-y-8 bg-white max-w-6xl">
+      <div className="flex items-center justify-between">
+        <div>
+          <button 
+            onClick={() => router.push("/seller/products")}
+            className="text-blue-600 hover:underline text-[13px] font-medium flex items-center gap-1 mb-2"
+          >
+            ← Back to Products
+          </button>
+          <h1 className="text-[22px] font-medium text-gray-900">Quotation Builder</h1>
+        </div>
       </div>
 
       {cart.length === 0 ? (
-        <Card className="border-slate-800 bg-slate-900/30 backdrop-blur-sm text-center py-16 text-slate-500">
-          <CardContent className="space-y-4">
-            <Calculator className="h-12 w-12 mx-auto text-slate-700" />
-            <p className="text-slate-400 text-lg">Your quotation sheet is currently empty.</p>
-            <Button 
-              onClick={() => router.push("/seller/products")}
-              className="bg-violet-600 hover:bg-violet-500 text-white"
-            >
-              Browse Catalog
-            </Button>
-          </CardContent>
-        </Card>
+        <div className="border border-gray-200 rounded-lg bg-white p-12 text-center text-gray-500">
+          <p className="text-[14px] mb-4">Your quotation sheet is currently empty.</p>
+          <Button 
+            onClick={() => router.push("/seller/products")}
+            className="bg-blue-600 hover:bg-blue-700 text-white h-9 px-4 text-[13px] font-medium rounded-md shadow-none"
+          >
+            Browse Catalog
+          </Button>
+        </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-          {/* Main items panel */}
-          <div className="lg:col-span-2 space-y-6">
-            <Card className="border-slate-800 bg-slate-900/30 backdrop-blur-sm text-white overflow-hidden shadow-xl">
-              <CardHeader className="border-b border-slate-800 bg-slate-900/50">
-                <CardTitle className="text-lg">Items Selection</CardTitle>
-                <CardDescription className="text-slate-400 text-xs">Verify your quantities and unit targets.</CardDescription>
-              </CardHeader>
-              <CardContent className="p-0">
-                <Table>
-                  <TableHeader className="border-b border-slate-800 text-slate-400">
-                    <TableRow className="border-b border-slate-800 hover:bg-slate-900/20">
-                      <TableHead>Item Details</TableHead>
-                      <TableHead className="w-[120px]">Quantity</TableHead>
-                      <TableHead className="w-[110px]">Unit</TableHead>
-                      <TableHead className="text-right">Line Estimate</TableHead>
-                      <TableHead className="w-[60px]"></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody className="text-slate-300">
-                    {cart.map((item) => {
-                      const units = getUnitsForDimension(item.dimension as Dimension);
-                      const currentQty = item.quantity || 0;
-                      const currentUnit = item.unit || (item.base_unit as Unit);
-                      const lineTotal = calculatePrice(currentQty, currentUnit, item.base_price);
+        <div className="grid grid-cols-10 gap-6 items-start text-left">
+          {/* LEFT PANEL (60%) */}
+          <div className="col-span-6 bg-white border border-gray-200 rounded-lg overflow-hidden">
+            <div className="flex justify-between items-center px-4 py-3 border-b border-gray-200 bg-gray-50/50">
+              <span className="text-[11px] font-medium uppercase tracking-widest text-gray-500">ITEM DETAILS</span>
+              <span className="text-[11px] font-medium uppercase tracking-widest text-gray-500">EST. PRICE</span>
+            </div>
 
-                      return (
-                        <TableRow key={item.productId} className="border-b border-slate-800 hover:bg-slate-900/20 transition-colors">
-                          <TableCell className="align-middle">
-                            <p className="font-semibold text-white">{item.name}</p>
-                            <span className="text-[10px] text-slate-500 font-mono">Base: {item.base_unit} @ {formatINR(item.base_price)}</span>
-                          </TableCell>
-                          <TableCell className="align-middle">
-                            <Input
-                              type="number"
-                              min="0.0001"
-                              step="any"
-                              value={item.quantity === 0 ? "" : item.quantity}
-                              onChange={(e) => handleQuantityChange(item.productId, e.target.value)}
-                              className="bg-slate-950 border-slate-800 text-white focus:border-violet-500 font-medium text-sm h-9"
-                            />
-                          </TableCell>
-                          <TableCell className="align-middle">
-                            <Select 
-                              value={currentUnit} 
-                              onValueChange={(val) => handleUnitChange(item.productId, val as Unit)}
-                            >
-                              <SelectTrigger className="bg-slate-950 border-slate-800 text-white h-9">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent className="bg-slate-900 border-slate-800 text-white">
-                                {units.map((u) => (
-                                  <SelectItem key={u} value={u}>
-                                    {u}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </TableCell>
-                          <TableCell className="text-right font-bold text-white align-middle">
-                            {formatINR(lineTotal)}
-                          </TableCell>
-                          <TableCell className="text-center align-middle">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleRemoveItem(item.productId)}
-                              className="h-8 w-8 text-slate-500 hover:text-red-400 hover:bg-slate-850"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+            <div className="divide-y divide-gray-100">
+              {cart.map((item) => {
+                const units = getUnitsForDimension(item.dimension as Dimension);
+                const currentQty = item.quantity || 0;
+                const currentUnit = item.unit || (item.base_unit as Unit);
+                const lineTotal = calculatePrice(currentQty, currentUnit, item.base_price);
+
+                return (
+                  <div key={item.productId} className="p-4 flex justify-between items-center gap-4">
+                    <div className="flex-1 space-y-1.5">
+                      <div>
+                        <h3 className="text-[14px] font-medium text-gray-900 leading-tight">{item.name}</h3>
+                        <p className="text-[12px] text-gray-500 mt-0.5 font-mono">
+                          Base: {item.base_unit} @ {formatINR(item.base_price)}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="number"
+                          min="0.0001"
+                          step="any"
+                          value={item.quantity === 0 ? "" : item.quantity}
+                          onChange={(e) => handleQuantityChange(item.productId, e.target.value)}
+                          className="w-20 h-8 border border-gray-200 text-[13px] text-gray-900 bg-white placeholder-gray-400 focus:ring-blue-500 focus:border-blue-500 rounded-md shadow-none px-2"
+                        />
+                        
+                        <select
+                          value={currentUnit} 
+                          onChange={(e) => handleUnitChange(item.productId, e.target.value as Unit)}
+                          className="h-8 border border-gray-200 text-[12px] text-gray-700 bg-white rounded-md focus:ring-blue-500 px-2 outline-none"
+                        >
+                          {units.map((u) => (
+                            <option key={u} value={u}>
+                              {u}
+                            </option>
+                          ))}
+                        </select>
+
+                        <button
+                          onClick={() => handleRemoveItem(item.productId)}
+                          className="text-gray-400 hover:text-red-600 text-[12px] font-medium ml-2"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="text-right font-medium text-[14px] tabular-nums text-gray-900 shrink-0">
+                      {formatINR(lineTotal)}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
-          {/* Right summary card */}
-          <div className="space-y-6">
-            <Card className="border-slate-800 bg-slate-900/30 backdrop-blur-sm text-white shadow-xl">
-              <CardHeader className="border-b border-slate-800 bg-slate-900/50">
-                <CardTitle className="text-lg">Quotation Summary</CardTitle>
-              </CardHeader>
-              
-              <CardContent className="space-y-4 pt-6">
-                {errorMessage && (
-                  <div className="rounded-lg bg-red-950/50 p-3 text-sm text-red-400 border border-red-800/50 font-medium">
-                    {errorMessage}
+          {/* RIGHT PANEL (40%) */}
+          <div className="col-span-4 bg-white border border-gray-200 rounded-lg p-6 sticky top-8 space-y-4">
+            <h2 className="text-[11px] font-medium uppercase tracking-widest text-gray-500 mb-2">ORDER SUMMARY</h2>
+
+            {errorMessage && (
+              <div className="rounded-md bg-red-50 p-3 text-[13px] text-red-600 border border-red-200 font-medium">
+                {errorMessage}
+              </div>
+            )}
+
+            <div className="space-y-2 divide-y divide-gray-100">
+              {cart.map((item) => {
+                const currentQty = item.quantity || 0;
+                const currentUnit = item.unit || (item.base_unit as Unit);
+                const lineTotal = calculatePrice(currentQty, currentUnit, item.base_price);
+                return (
+                  <div key={item.productId} className="flex justify-between items-start text-[13px] py-2 text-gray-700 first:pt-0">
+                    <span className="font-medium text-gray-950 flex-1 pr-4 truncate">{item.name}</span>
+                    <span className="tabular-nums text-right text-gray-500 shrink-0">
+                      {currentQty} {currentUnit} · {formatINR(lineTotal)}
+                    </span>
                   </div>
-                )}
+                );
+              })}
+            </div>
 
-                <div className="flex justify-between items-center pb-2 border-b border-slate-800">
-                  <span className="text-slate-400 text-sm">Total items selection</span>
-                  <span className="font-semibold text-white">{cart.length}</span>
-                </div>
+            <div className="border-t border-gray-200 pt-4" />
 
-                <div className="flex justify-between items-center py-2 border-b border-slate-800">
-                  <span className="text-slate-400 text-sm font-medium">Grand Total</span>
-                  <span className="text-2xl font-black text-white bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">
-                    {formatINR(grandTotal)}
-                  </span>
-                </div>
+            <div className="flex justify-between items-center">
+              <span className="text-[13px] font-medium text-gray-900">Grand Total</span>
+              <span className="text-[24px] font-medium tabular-nums text-blue-600">
+                {formatINR(grandTotal)}
+              </span>
+            </div>
 
-                <div className="space-y-2 pt-2">
-                  <Label htmlFor="orderNotes" className="text-slate-400 text-xs">Quotation Notes (Optional)</Label>
-                  <textarea
-                    id="orderNotes"
-                    rows={3}
-                    placeholder="Enter special chemical handling or delivery instructions..."
-                    value={orderNotes}
-                    onChange={(e) => setOrderNotes(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-violet-500 transition-colors resize-none"
-                  />
-                </div>
-              </CardContent>
+            <div className="space-y-1.5 pt-2">
+              <Label htmlFor="orderNotes" className="text-[12px] font-medium text-gray-700">Quotation Notes</Label>
+              <textarea
+                id="orderNotes"
+                rows={3}
+                placeholder="Enter handling or delivery instructions..."
+                value={orderNotes}
+                onChange={(e) => setOrderNotes(e.target.value)}
+                className="w-full min-h-[70px] border border-gray-200 rounded-md p-2.5 text-[13px] text-gray-900 bg-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 resize-none shadow-none"
+              />
+            </div>
 
-              <CardFooter className="pt-2">
-                <Button
-                  onClick={handleSubmitQuotation}
-                  disabled={isSubmitting || cart.length === 0}
-                  className="w-full bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 text-white font-semibold py-6 transition-all duration-200 shadow-lg shadow-violet-500/20"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Submitting...
-                    </>
-                  ) : (
-                    <>
-                      <FileCheck className="mr-2 h-5 w-5" /> Submit Quotation Request
-                    </>
-                  )}
-                </Button>
-              </CardFooter>
-            </Card>
+            <Button
+              onClick={handleSubmitQuotation}
+              disabled={isSubmitting || cart.length === 0}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white h-10 mt-4 text-[13px] font-medium rounded-md shadow-none animate-none"
+            >
+              {isSubmitting ? "Submitting..." : "Submit Quotation"}
+            </Button>
           </div>
         </div>
       )}

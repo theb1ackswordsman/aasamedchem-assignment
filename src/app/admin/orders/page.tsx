@@ -1,17 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import {
-  Loader2,
-  ChevronDown,
-  ChevronRight,
-  Package,
-  Clock,
-  CheckCircle2,
-  XCircle,
-  Truck,
-  RefreshCw,
-} from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -56,11 +46,11 @@ interface Order {
   items: OrderItem[];
 }
 
-const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ComponentType<any> }> = {
-  pending: { label: "Pending", color: "bg-amber-500/10 text-amber-400 border-amber-500/20", icon: Clock },
-  confirmed: { label: "Confirmed", color: "bg-blue-500/10 text-blue-400 border-blue-500/20", icon: CheckCircle2 },
-  fulfilled: { label: "Fulfilled", color: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20", icon: Truck },
-  cancelled: { label: "Cancelled", color: "bg-red-500/10 text-red-400 border-red-500/20", icon: XCircle },
+const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
+  pending: { label: "pending", color: "bg-amber-100 text-amber-800" },
+  confirmed: { label: "confirmed", color: "bg-blue-100 text-blue-800" },
+  fulfilled: { label: "fulfilled", color: "bg-green-100 text-green-800" },
+  cancelled: { label: "cancelled", color: "bg-gray-100 text-gray-600" },
 };
 
 const VALID_TRANSITIONS: Record<string, string[]> = {
@@ -126,169 +116,153 @@ export default function AdminOrdersPage() {
       day: "2-digit",
       month: "short",
       year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
     });
   };
 
   const shortId = (id: string) => id.slice(0, 8).toUpperCase();
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="space-y-8 bg-white">
+      <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white">Orders Management</h1>
-          <p className="text-slate-400">Review, approve, or update orders placed by sellers.</p>
+          <h1 className="text-[22px] font-medium text-gray-900">Orders</h1>
         </div>
         <Button
           onClick={fetchOrders}
-          variant="ghost"
-          className="text-slate-400 hover:text-white border border-slate-800 hover:border-slate-700"
+          variant="outline"
+          className="h-9 px-4 text-[13px] font-medium border border-gray-200 text-gray-700 hover:bg-gray-50 rounded-md shadow-none"
         >
-          <RefreshCw className="mr-2 h-4 w-4" /> Refresh
+          Refresh
         </Button>
       </div>
 
-      <div className="rounded-xl border border-slate-800 bg-slate-900/20 overflow-hidden shadow-xl">
+      <div className="rounded-lg border border-gray-200 overflow-hidden bg-white text-left">
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-20 gap-3">
-            <Loader2 className="h-8 w-8 text-violet-500 animate-spin" />
-            <p className="text-slate-400 text-sm">Loading orders...</p>
+          <div className="flex flex-col items-center justify-center py-20 gap-3 bg-white">
+            <Loader2 className="h-8 w-8 text-blue-600 animate-spin" />
+            <p className="text-gray-500 text-sm">Loading orders...</p>
           </div>
         ) : ordersList.length === 0 ? (
-          <div className="py-20 text-center text-slate-500">
-            <Package className="h-12 w-12 mx-auto mb-4 text-slate-700" />
+          <div className="py-20 text-center text-gray-500 text-[13px] bg-white">
             <p>No orders found.</p>
           </div>
         ) : (
           <Table>
-            <TableHeader className="bg-slate-900/50 border-b border-slate-800 text-slate-300">
-              <TableRow className="border-b border-slate-800 hover:bg-slate-900/30">
-                <TableHead className="w-[40px]"></TableHead>
-                <TableHead className="font-semibold">Order ID</TableHead>
-                <TableHead className="font-semibold">Seller</TableHead>
-                <TableHead className="font-semibold">Date</TableHead>
-                <TableHead className="font-semibold text-center">Items</TableHead>
-                <TableHead className="font-semibold text-right">Total (INR)</TableHead>
-                <TableHead className="font-semibold text-center">Status</TableHead>
-                <TableHead className="font-semibold text-center">Actions</TableHead>
+            <TableHeader className="bg-white border-b border-gray-200 text-gray-500 text-[11px] font-medium uppercase tracking-widest">
+              <TableRow className="border-b border-gray-200 hover:bg-white">
+                <TableHead className="font-medium">ORDER ID</TableHead>
+                <TableHead className="font-medium">SELLER</TableHead>
+                <TableHead className="font-medium">DATE</TableHead>
+                <TableHead className="font-medium text-center">ITEMS</TableHead>
+                <TableHead className="font-medium text-right">TOTAL</TableHead>
+                <TableHead className="font-medium text-center">STATUS</TableHead>
+                <TableHead className="font-medium text-right">ACTIONS</TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody className="text-slate-300">
-              {ordersList.map((order) => {
+            <TableBody className="text-[13px] text-gray-700">
+              {ordersList.map((order, idx) => {
                 const isExpanded = expandedOrderId === order.id;
                 const statusConf = STATUS_CONFIG[order.status] || STATUS_CONFIG.pending;
-                const StatusIcon = statusConf.icon;
                 const nextStatuses = VALID_TRANSITIONS[order.status] || [];
 
                 return (
                   <React.Fragment key={order.id}>
                     {/* Main order row */}
-                    <TableRow className="border-b border-slate-800 hover:bg-slate-900/30 transition-colors">
-                      <TableCell className="text-center">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7 text-slate-500 hover:text-white"
+                    <TableRow 
+                      className={`h-11 border-b border-gray-100 last:border-0 hover:bg-gray-50/50 ${
+                        idx % 2 === 0 ? "bg-white" : "bg-[#F8FAFC]"
+                      }`}
+                    >
+                      <td className="px-6 py-2">
+                        <button
                           onClick={() => toggleExpand(order.id)}
+                          className="font-mono text-[13px] font-medium text-blue-600 hover:underline"
                         >
-                          {isExpanded ? (
-                            <ChevronDown className="h-4 w-4" />
-                          ) : (
-                            <ChevronRight className="h-4 w-4" />
-                          )}
-                        </Button>
-                      </TableCell>
-                      <TableCell className="font-mono text-xs font-bold text-violet-400">
-                        {shortId(order.id)}
-                      </TableCell>
-                      <TableCell>
+                          {shortId(order.id)}
+                        </button>
+                      </td>
+                      <td className="px-6 py-2">
                         <div>
-                          <p className="font-medium text-white text-sm">{order.sellerName}</p>
-                          <p className="text-[11px] text-slate-500">{order.sellerEmail}</p>
+                          <p className="font-medium text-gray-950">{order.sellerName}</p>
+                          <p className="text-[11px] text-gray-400 leading-none">{order.sellerEmail}</p>
                         </div>
-                      </TableCell>
-                      <TableCell className="text-xs text-slate-400">
+                      </td>
+                      <td className="px-6 py-2 text-gray-500">
                         {formatDate(order.createdAt)}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <span className="px-2 py-0.5 rounded-full text-xs bg-slate-800 text-slate-300 border border-slate-700 font-medium">
-                          {order.items.length}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-right font-semibold text-white">
+                      </td>
+                      <td className="px-6 py-2 text-center text-gray-500 font-medium">
+                        {order.items.length}
+                      </td>
+                      <td className="px-6 py-2 text-right font-medium tabular-nums text-gray-900">
                         {formatINR(Number(order.totalAmount))}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <span
-                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${statusConf.color}`}
-                        >
-                          <StatusIcon className="h-3 w-3" />
+                      </td>
+                      <td className="px-6 py-2 text-center">
+                        <span className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-medium uppercase tracking-wider ${statusConf.color}`}>
                           {statusConf.label}
                         </span>
-                      </TableCell>
-                      <TableCell className="text-center">
+                      </td>
+                      <td className="px-6 py-2 text-right">
                         {nextStatuses.length > 0 ? (
                           <Select
                             onValueChange={(val) => handleStatusChange(order.id, val as string)}
                             disabled={updatingOrderId === order.id}
                           >
-                            <SelectTrigger className="w-[140px] h-8 bg-slate-950 border-slate-800 text-white text-xs mx-auto">
-                              <SelectValue placeholder="Update status" />
+                            <SelectTrigger className="w-32 h-8 border border-gray-200 text-[12px] bg-white rounded-md shadow-none px-2 inline-flex focus:ring-blue-500">
+                              <SelectValue placeholder="Update" />
                             </SelectTrigger>
-                            <SelectContent className="bg-slate-900 border-slate-800 text-white">
+                            <SelectContent className="bg-white border border-gray-200">
                               {nextStatuses.map((s) => (
-                                <SelectItem key={s} value={s} className="capitalize">
-                                  {s.charAt(0).toUpperCase() + s.slice(1)}
+                                <SelectItem key={s} value={s} className="capitalize text-[12px]">
+                                  {s}
                                 </SelectItem>
                               ))}
                             </SelectContent>
                           </Select>
                         ) : (
-                          <span className="text-xs text-slate-600">No actions</span>
+                          <span className="text-[12px] text-gray-400">—</span>
                         )}
-                      </TableCell>
+                      </td>
                     </TableRow>
 
                     {/* Expandable line items row */}
                     {isExpanded && (
-                      <TableRow className="bg-slate-950/50 border-b border-slate-800">
-                        <TableCell colSpan={8} className="p-0">
-                          <div className="px-6 py-4">
-                            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
-                              Line Items
+                      <TableRow className="bg-gray-50 border-b border-gray-200 hover:bg-gray-50">
+                        <TableCell colSpan={7} className="p-0">
+                          <div className="px-8 py-4 bg-gray-50 text-left">
+                            <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-widest mb-3">
+                              LINE ITEMS
                             </p>
                             {order.notes && (
-                              <div className="mb-3 p-2 rounded bg-slate-900 border border-slate-800 text-xs text-slate-400">
-                                <span className="font-semibold text-slate-300">Notes:</span> {order.notes}
+                              <div className="mb-4 p-3 rounded border border-gray-200 bg-white text-[13px] text-gray-600">
+                                <span className="font-medium text-gray-900">Notes:</span> {order.notes}
                               </div>
                             )}
-                            <table className="w-full text-sm">
+                            <table className="w-full text-left text-[12px] border-collapse bg-transparent">
                               <thead>
-                                <tr className="text-slate-500 text-xs border-b border-slate-800">
-                                  <th className="text-left pb-2 font-medium">Product</th>
-                                  <th className="text-left pb-2 font-medium">SKU</th>
-                                  <th className="text-right pb-2 font-medium">Ordered Qty</th>
-                                  <th className="text-right pb-2 font-medium">Base Qty</th>
-                                  <th className="text-right pb-2 font-medium">Unit Price</th>
-                                  <th className="text-right pb-2 font-medium">Line Total</th>
+                                <tr className="text-gray-500 border-b border-gray-200 text-[11px] font-medium uppercase tracking-widest">
+                                  <th className="pb-2 font-medium">PRODUCT</th>
+                                  <th className="pb-2 font-medium text-right">ORDERED QTY</th>
+                                  <th className="pb-2 font-medium text-right">BASE QTY</th>
+                                  <th className="pb-2 font-medium text-right">UNIT PRICE</th>
+                                  <th className="pb-2 font-medium text-right">LINE TOTAL</th>
                                 </tr>
                               </thead>
-                              <tbody>
+                              <tbody className="divide-y divide-gray-100 text-gray-700 bg-transparent">
                                 {order.items.map((item) => (
-                                  <tr key={item.id} className="border-b border-slate-800/50 text-slate-300">
-                                    <td className="py-2 font-medium text-white">{item.productName}</td>
-                                    <td className="py-2 font-mono text-xs text-violet-400">{item.productSku}</td>
-                                    <td className="py-2 text-right">
+                                  <tr key={item.id} className="h-9 bg-transparent">
+                                    <td className="py-2 text-gray-950 font-medium bg-transparent">
+                                      {item.productName} <span className="font-mono text-[10px] text-gray-400">({item.productSku})</span>
+                                    </td>
+                                    <td className="py-2 text-right tabular-nums bg-transparent">
                                       {Number(item.orderedQuantity).toLocaleString("en-IN")} {item.orderedUnit}
                                     </td>
-                                    <td className="py-2 text-right">
+                                    <td className="py-2 text-right tabular-nums bg-transparent">
                                       {Number(item.quantityInBaseUnit).toLocaleString("en-IN")} {item.productBaseUnit}
                                     </td>
-                                    <td className="py-2 text-right">
+                                    <td className="py-2 text-right tabular-nums bg-transparent">
                                       {formatINR(Number(item.unitPriceSnapshot))}/{item.productBaseUnit}
                                     </td>
-                                    <td className="py-2 text-right font-semibold text-white">
+                                    <td className="py-2 text-right font-medium tabular-nums text-gray-900 bg-transparent">
                                       {formatINR(Number(item.lineTotal))}
                                     </td>
                                   </tr>
